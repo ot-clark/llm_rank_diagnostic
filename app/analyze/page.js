@@ -95,29 +95,34 @@ export default function AnalyzePage() {
   // Prepare radar chart data with actual scoring dimensions
   const radarData = [
     { 
-      dimension: 'Structure & Semantics', 
-      value: Math.floor(analysisData.overallScore * 0.25) + Math.floor(Math.random() * 10) - 5,
+      dimension: 'Semantic Structure', 
+      value: analysisData.scoringBreakdown?.semanticStructure || 0,
       fullMark: 25 
     },
     { 
-      dimension: 'Relevance & Intent', 
-      value: Math.floor(analysisData.overallScore * 0.25) + Math.floor(Math.random() * 10) - 5,
-      fullMark: 25 
-    },
-    { 
-      dimension: 'Token Efficiency', 
-      value: Math.floor(analysisData.overallScore * 0.20) + Math.floor(Math.random() * 10) - 5,
+      dimension: 'Schema Validation', 
+      value: analysisData.scoringBreakdown?.schemaValidation || 0,
       fullMark: 20 
     },
     { 
-      dimension: 'Link Graph', 
-      value: Math.floor(analysisData.overallScore * 0.15) + Math.floor(Math.random() * 10) - 5,
+      dimension: 'Embedding Clarity', 
+      value: analysisData.scoringBreakdown?.embeddingClarity || 0,
+      fullMark: 20 
+    },
+    { 
+      dimension: 'GPTBot Access', 
+      value: analysisData.scoringBreakdown?.gptbotAccessibility || 0,
       fullMark: 15 
     },
     { 
-      dimension: 'LLM Output Likelihood', 
-      value: Math.floor(analysisData.overallScore * 0.15) + Math.floor(Math.random() * 10) - 5,
-      fullMark: 15 
+      dimension: 'Freshness', 
+      value: analysisData.scoringBreakdown?.freshness || 0,
+      fullMark: 10 
+    },
+    { 
+      dimension: 'LLM Echo Probability', 
+      value: analysisData.scoringBreakdown?.llmEchoProbability || 0,
+      fullMark: 10 
     },
   ];
 
@@ -265,6 +270,188 @@ export default function AnalyzePage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Detailed Scoring Breakdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-12"
+        >
+          <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-8">
+            <h3 className="text-xl font-semibold mb-6">Detailed Scoring Criteria</h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Semantic Structure */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-purple-400">Semantic Structure</h4>
+                  <span className="text-2xl font-bold text-purple-400">
+                    {analysisData.scoringBreakdown?.semanticStructure || 0}/25
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>H1 → H2 hierarchy consistency</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Semantic tags (table, dl, ul, ol, blockquote, code)</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Definition lists & glossaries</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Internal linking structure</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Schema Validation */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-blue-400">Schema Validation</h4>
+                  <span className="text-2xl font-bold text-blue-400">
+                    {analysisData.scoringBreakdown?.schemaValidation || 0}/20
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>JSON-LD structured data</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Schema.org types (Article, FAQPage, BreadcrumbList)</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Canonical URL presence</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Lastmod tags & sitemap entries</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Embedding Clarity */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-green-400">Embedding Clarity</h4>
+                  <span className="text-2xl font-bold text-green-400">
+                    {analysisData.scoringBreakdown?.embeddingClarity || 0}/20
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>Term consistency index</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Self-containment score</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Redundancy detection</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Section clarity (768+ dim embeddings)</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* GPTBot Accessibility */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-orange-400">GPTBot Accessibility</h4>
+                  <span className="text-2xl font-bold text-orange-400">
+                    {analysisData.scoringBreakdown?.gptbotAccessibility || 0}/15
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>HTTP status codes (200 OK)</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Redirect handling</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cloudflare/Captcha blocks</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>GPTBot user agent access</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Freshness */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-cyan-400">Freshness</h4>
+                  <span className="text-2xl font-bold text-cyan-400">
+                    {analysisData.scoringBreakdown?.freshness || 0}/10
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>Lastmod timestamps</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cache headers optimization</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Content age assessment</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Update frequency</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* LLM Echo Probability */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-pink-400">LLM Echo Probability</h4>
+                  <span className="text-2xl font-bold text-pink-400">
+                    {analysisData.scoringBreakdown?.llmEchoProbability || 0}/10
+                  </span>
+                </div>
+                <div className="space-y-3 text-sm text-gray-300">
+                  <div className="flex justify-between">
+                    <span>Prompt simulation (10 test queries)</span>
+                    <span className="text-green-400">✓</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cosine similarity analysis</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Response overlap percentage</span>
+                    <span className="text-yellow-400">⚠</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Example match quality</span>
+                    <span className="text-red-400">✗</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>

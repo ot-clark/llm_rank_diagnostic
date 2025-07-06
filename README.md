@@ -1,272 +1,170 @@
 # LLM Rank Diagnostic
 
-A comprehensive web application that analyzes website content for LLM (Large Language Model) visibility and ranking potential. Get AI-powered insights with visual overlays and actionable recommendations.
+A comprehensive web application that analyzes website URLs for AI visibility and LLM-friendliness, providing page-by-page analysis with overlays, suggestions, and visualizations.
 
-## 🚀 Features
+## 🎯 **Objective Scoring System**
 
-- **AI Visibility Scoring**: Comprehensive analysis across 5 key dimensions
-- **Visual Overlays**: Grammarly-style highlights showing content issues
-- **Page-by-Page Analysis**: Detailed breakdown for each page on your website
-- **Interactive Explorer**: Navigate through pages with real-time suggestions
-- **Modern UI**: Beautiful, responsive design with smooth animations
+The application uses a **deterministic, objective scoring system** based on concrete, measurable criteria instead of random scores. Each website receives a consistent score across multiple analyses.
 
-## 🛠️ Tech Stack
+### **Scoring Dimensions (Total: 100 points)**
 
-- **Frontend**: Next.js 15, React 19, Tailwind CSS, Framer Motion
-- **Backend**: Node.js, Express.js
-- **Scraping**: Puppeteer, Cheerio
-- **LLM Integration**: OpenAI API (GPT-4)
-- **Database**: PostgreSQL
-- **Caching**: Redis
-- **Python Service**: FastAPI for advanced scraping and scoring
+#### **1. Semantic Structure (25 points)**
+- **H1 → H2 → H3 hierarchy consistency** (5 points)
+- **Semantic HTML tags** (`<table>`, `<dl>`, `<ul>`, `<ol>`, `<blockquote>`, `<code>`) (10 points)
+- **Definition lists and glossaries** (5 points)
+- **Internal linking structure** (5 points)
 
-## 📋 Prerequisites
+#### **2. Schema Validation (20 points)**
+- **JSON-LD structured data** (8 points)
+- **Schema.org types** (Article, FAQPage, BreadcrumbList, etc.) (6 points)
+- **Canonical URL presence** (3 points)
+- **Lastmod tags & sitemap entries** (3 points)
 
-- Node.js 18+ 
-- Python 3.8+
-- PostgreSQL
-- Redis
-- OpenAI API key
+#### **3. Embedding Clarity (20 points)**
+- **Term consistency index** (6 points)
+- **Self-containment score** (6 points)
+- **Redundancy detection** (4 points)
+- **Section clarity** (768+ dimension embeddings) (4 points)
 
-## 🚀 Quick Start
+#### **4. GPTBot Accessibility (15 points)**
+- **HTTP status codes** (200 OK) (5 points)
+- **Redirect handling** (3 points)
+- **No Cloudflare/Captcha blocks** (5 points)
+- **GPTBot user agent access** (2 points)
 
-### 1. Clone and Install Dependencies
+#### **5. Freshness (10 points)**
+- **Lastmod timestamps** (4 points)
+- **Cache headers optimization** (3 points)
+- **Content age assessment** (3 points)
+
+#### **6. LLM Echo Probability (10 points)**
+- **Prompt simulation** (10 test queries) (4 points)
+- **Cosine similarity analysis** (3 points)
+- **Response overlap percentage** (3 points)
+
+## 🚀 **Features**
+
+### **1. Comprehensive Analysis**
+- **Page-by-page scoring** with detailed breakdowns
+- **Radar chart visualization** showing performance across all dimensions
+- **Detailed scoring criteria** with specific recommendations
+- **Consistent, objective results** (no random scoring)
+
+### **2. Live Overlay System**
+- **Real website embedding** in iframe
+- **Interactive highlighting** similar to Grammarly
+- **Severity-based overlays**:
+  - 🔴 **High** - Critical issues (red highlighting)
+  - 🟡 **Medium** - Important improvements (yellow highlighting)
+  - 🔵 **Low** - Minor suggestions (blue highlighting)
+- **Click-to-view suggestions** with specific recommendations
+
+### **3. Advanced Analytics**
+- **Semantic structure analysis** with heading hierarchy validation
+- **Schema.org validation** with structured data detection
+- **Embedding-based content analysis** for clarity and consistency
+- **GPTBot accessibility testing** to ensure AI crawler access
+- **Content freshness evaluation** with cache and timestamp analysis
+- **LLM echo probability estimation** through prompt simulation
+
+## 🛠 **Tech Stack**
+
+- **Frontend**: Next.js 15, React, Tailwind CSS, Framer Motion
+- **Backend**: Express.js, Node.js
+- **Analysis Engine**: Python microservice with BeautifulSoup, OpenAI embeddings
+- **Database**: PostgreSQL, Redis
+- **Web Scraping**: Puppeteer, requests
+- **AI Integration**: OpenAI API for embeddings and analysis
+
+## 📊 **Scoring Examples**
+
+### **High-Performing Site (80+ points)**
+- ✅ Proper heading hierarchy (H1 → H2 → H3)
+- ✅ Rich semantic HTML (tables, lists, blockquotes)
+- ✅ Comprehensive structured data (JSON-LD)
+- ✅ GPTBot accessible with no blocks
+- ✅ Recent content with proper cache headers
+- ✅ High LLM echo probability
+
+### **Medium-Performing Site (60-79 points)**
+- ⚠️ Some heading structure issues
+- ⚠️ Limited semantic HTML elements
+- ⚠️ Basic structured data
+- ⚠️ Generally accessible to GPTBot
+- ⚠️ Moderate content freshness
+- ⚠️ Moderate LLM echo probability
+
+### **Low-Performing Site (<60 points)**
+- ❌ Poor heading hierarchy
+- ❌ Missing semantic HTML elements
+- ❌ No structured data
+- ❌ GPTBot access issues
+- ❌ Outdated content
+- ❌ Low LLM echo probability
+
+## 🎨 **UI Components**
+
+### **Analysis Dashboard**
+- **Overall score card** with color-coded performance
+- **Radar chart** showing dimensional breakdown
+- **Detailed scoring criteria** with specific metrics
+- **Page-by-page analysis** with individual scores
+- **Top recommendations** for improvement
+
+### **Overlay Explorer**
+- **Real website viewer** with embedded iframe
+- **Interactive highlighting** on content issues
+- **Sidebar navigation** between pages
+- **Issue details panel** with specific suggestions
+- **Toggle overlays** on/off for comparison
+
+## 🔧 **Installation & Setup**
 
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd llm_rank_diagnostic
 
-# Install frontend dependencies
+# Install dependencies
 npm install
 
-# Install backend dependencies
-cd server
-npm install
+# Set up environment variables
+cp .env.example .env
+# Add your OpenAI API key to .env
 
-# Install Python dependencies
-cd ../scraper
-pip install -r requirements.txt
-```
-
-### 2. Environment Setup
-
-Create a `.env` file in the root directory:
-
-```env
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/llm_diagnostic
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# OpenAI
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Server Ports
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-### 3. Database Setup
-
-```bash
-# Start PostgreSQL and create database
-psql -U postgres
-CREATE DATABASE llm_diagnostic;
-\q
-
-# Run the schema
-psql -U postgres -d llm_diagnostic -f database/schema.sql
-```
-
-### 4. Start Services
-
-```bash
-# Terminal 1: Start Redis
-redis-server
-
-# Terminal 2: Start PostgreSQL (if not running as service)
-pg_ctl start
-
-# Terminal 3: Start Python scraper service
-cd scraper
-python main.py
-
-# Terminal 4: Start backend server
-cd server
-npm run dev
-
-# Terminal 5: Start frontend
+# Start the development server
 npm run dev
 ```
 
-### 5. Access the Application
+## 📈 **Usage**
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+1. **Enter a domain** (e.g., "descript.com")
+2. **View comprehensive analysis** with objective scoring
+3. **Explore the radar chart** to understand dimensional performance
+4. **Click "View Live Overlays"** to see issues on the actual website
+5. **Browse pages** and click highlighted text for specific suggestions
+6. **Implement recommendations** to improve AI visibility
 
-## 📖 Usage
+## 🎯 **Use Cases**
 
-1. **Enter Website URL**: Input any website URL on the landing page
-2. **Wait for Analysis**: The system will scrape and analyze your website
-3. **View Results**: See your AI visibility score and recommendations
-4. **Explore Overlays**: Click "Explore Overlays" to see visual suggestions
-5. **Implement Changes**: Follow the recommendations to improve your content
+- **Content creators** optimizing for AI visibility
+- **SEO professionals** improving search engine performance
+- **Web developers** ensuring LLM-friendly content structure
+- **Marketing teams** maximizing content discoverability
+- **Business owners** improving online presence
 
-## 🏗️ Architecture
+## 🔮 **Future Enhancements**
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Python        │
-│   (Next.js)     │◄──►│   (Express)     │◄──►│   (FastAPI)     │
-│   Port: 3000    │    │   Port: 3001    │    │   Port: 8000    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   PostgreSQL    │    │     Redis       │    │   OpenAI API    │
-│   Database      │    │     Cache       │    │   (External)    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+- **Real-time analysis** with live website crawling
+- **Competitive analysis** comparing multiple domains
+- **Historical tracking** of score improvements over time
+- **Custom scoring weights** for different industries
+- **API integration** for automated analysis workflows
 
-## 📊 Scoring Dimensions
+## 📝 **License**
 
-The application scores content across 5 key dimensions:
-
-1. **Structure & Semantics (25 pts)**: Content organization and markup
-2. **Relevance & Intent (25 pts)**: Topic relevance and user intent matching
-3. **Token Efficiency (20 pts)**: Information density and conciseness
-4. **Link Graph (15 pts)**: Internal linking and external references
-5. **LLM Output Likelihood (15 pts)**: Probability of appearing in AI responses
-
-## 🎨 Features in Detail
-
-### Landing Page
-- Modern, futuristic design with dark theme
-- URL input with validation
-- Animated demo preview
-- Feature highlights
-
-### Analysis Dashboard
-- Overall AI visibility score
-- Radar chart showing score breakdown
-- Top 3 improvement recommendations
-- Page-by-page score list
-
-### Overlay Explorer
-- Visual highlights on content
-- Tooltip explanations for each issue
-- Severity-based color coding
-- Sidebar navigation between pages
-- Interactive suggestions
-
-## 🔧 Configuration
-
-### Customizing Scoring
-
-Edit `server/utils/scorer.js` to modify the scoring algorithm:
-
-```javascript
-// Adjust scoring weights
-const structureSemantics = scoreStructureSemantics(content, title);
-const relevanceIntent = scoreRelevanceIntent(content, title, description);
-// ... etc
-```
-
-### Adding New Analysis Types
-
-Extend the Python service in `scraper/scorer.py`:
-
-```python
-async def score_content(self, content, title, description, metadata):
-    # Add your custom analysis logic here
-    pass
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**
-   - Ensure PostgreSQL is running
-   - Check DATABASE_URL in .env
-   - Verify database exists
-
-2. **Redis Connection Error**
-   - Start Redis server: `redis-server`
-   - Check REDIS_URL in .env
-
-3. **OpenAI API Error**
-   - Verify OPENAI_API_KEY is set
-   - Check API key permissions
-   - Ensure sufficient credits
-
-4. **Scraping Issues**
-   - Some sites may block automated requests
-   - Check robots.txt compliance
-   - Adjust user agent in scraper
-
-### Debug Mode
-
-Enable debug logging:
-
-```bash
-# Backend
-DEBUG=true npm run dev
-
-# Python service
-python main.py --debug
-```
-
-## 📈 Performance
-
-- **Caching**: Redis caches analysis results for 1 hour
-- **Concurrent Scraping**: Up to 10 pages analyzed simultaneously
-- **Rate Limiting**: 1-second delay between page requests
-- **Timeout Handling**: 30-second timeout for page loads
-
-## 🔒 Security
-
-- Input validation on all endpoints
-- CORS configuration for frontend-backend communication
-- Environment variable protection
-- Rate limiting on API endpoints
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-For issues and questions:
-- Check the troubleshooting section
-- Review the architecture documentation
-- Open an issue on GitHub
-
-## 🚀 Deployment
-
-### Production Setup
-
-1. **Environment Variables**: Set production values
-2. **Database**: Use managed PostgreSQL service
-3. **Redis**: Use managed Redis service
-4. **Scaling**: Deploy Python service separately
-5. **Monitoring**: Add logging and monitoring
-
-### Docker Deployment
-
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-```
+MIT License - see LICENSE file for details.
 
 ---
 
-**Built with ❤️ for better AI visibility**
+**Built with ❤️ for the AI-first web**
