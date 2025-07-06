@@ -6,18 +6,29 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "install:all": "npm install && cd server && npm install && cd ../scraper && pip install -r requirements.txt",
+    "dev:all": "concurrently \"npm run dev\" \"cd server && npm run dev\" \"cd scraper && python main.py\"",
+    "setup:db": "psql -U postgres -d llm_diagnostic -f database/schema.sql",
+    "demo:data": "cd server && node utils/demoData.js"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-tooltip": "^1.2.7",
+    "axios": "^1.10.0",
+    "framer-motion": "^12.23.0",
+    "lucide-react": "^0.525.0",
+    "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.5"
+    "recharts": "^3.0.2"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "concurrently": "^8.2.2"
   }
 }

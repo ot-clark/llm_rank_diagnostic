@@ -1,102 +1,267 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Search, Zap, BarChart3, Eye, ArrowRight, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [url, setUrl] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const handleAnalyze = async (e) => {
+    e.preventDefault();
+    if (!url) {
+      setError('Please enter a website URL');
+      return;
+    }
+
+    // Clear any previous errors
+    setError('');
+    setIsAnalyzing(true);
+    
+    try {
+      // Clean up the URL input
+      let cleanUrl = url.trim();
+      
+      // Add protocol if missing
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        cleanUrl = 'https://' + cleanUrl;
+      }
+
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: cleanUrl }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Analysis failed');
+      }
+
+      // Navigate to results page
+      router.push(`/analyze?domain=${encodeURIComponent(data.domain)}`);
+    } catch (error) {
+      console.error('Analysis error:', error);
+      setError(error.message || 'Failed to analyze website. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleUrlChange = (e) => {
+    setUrl(e.target.value);
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+      {/* Header */}
+      <header className="container mx-auto px-6 py-8">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="h-8 w-8 text-purple-400" />
+            <span className="text-xl font-bold">LLM Rank Diagnostic</span>
+          </div>
+          <div className="flex items-center space-x-6">
+            <a href="#how-it-works" className="hover:text-purple-400 transition-colors">How It Works</a>
+            <a href="#faq" className="hover:text-purple-400 transition-colors">FAQ</a>
+            <a href="#contact" className="hover:text-purple-400 transition-colors">Contact</a>
+          </div>
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <main className="container mx-auto px-6 py-20">
+        <div className="text-center max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              AI Visibility Engine
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
+              Optimize your website content for LLM ranking and AI visibility. 
+              Get comprehensive analysis with page-by-page suggestions.
+            </p>
+          </motion.div>
+
+          {/* URL Input Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="max-w-2xl mx-auto"
           >
-            Read our docs
-          </a>
+            <form onSubmit={handleAnalyze} className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  type="text"
+                  value={url}
+                  onChange={handleUrlChange}
+                  placeholder="Enter your website URL (e.g., example.com or https://example.com)"
+                  className={`w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-colors ${
+                    error ? 'border-red-400' : 'border-white/20'
+                  }`}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isAnalyzing}
+                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-5 w-5" />
+                    <span>Analyze My Website</span>
+                  </>
+                )}
+              </button>
+            </form>
+            
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {/* URL Examples */}
+            <div className="mt-6 text-sm text-gray-400">
+              <p>Try these examples:</p>
+              <div className="flex flex-wrap justify-center gap-4 mt-2">
+                <button
+                  onClick={() => setUrl('descript.com')}
+                  className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  descript.com
+                </button>
+                <button
+                  onClick={() => setUrl('https://www.descript.com')}
+                  className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  https://www.descript.com
+                </button>
+                <button
+                  onClick={() => setUrl('example.com')}
+                  className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  example.com
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Demo Animation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            className="mt-16 relative"
+          >
+            <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span className="text-sm text-gray-400">Demo: AI Visibility Analysis</span>
+              </div>
+              
+              <div className="bg-slate-800 rounded-lg p-4 text-left">
+                <div className="space-y-3">
+                  <div className="h-4 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded animate-pulse"></div>
+                  <div className="h-4 bg-slate-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-slate-700 rounded w-1/2"></div>
+                  <div className="h-4 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded animate-pulse"></div>
+                  <div className="h-4 bg-slate-700 rounded w-2/3"></div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-3 gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center p-6 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl"
+          >
+            <BarChart3 className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Comprehensive Scoring</h3>
+            <p className="text-gray-300">
+              Get detailed AI visibility scores across 5 key dimensions with actionable insights.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-center p-6 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl"
+          >
+            <Eye className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3">Visual Overlays</h3>
+            <p className="text-gray-300">
+              See exactly where to improve with Grammarly-style highlights and suggestions.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center p-6 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl"
+          >
+            <Zap className="h-12 w-12 text-purple-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-3">LLM Optimization</h3>
+            <p className="text-gray-300">
+              Optimize your content specifically for AI ranking and LLM inclusion.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="container mx-auto px-6 py-12 border-t border-white/10">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center space-x-2 mb-4 md:mb-0">
+            <Sparkles className="h-6 w-6 text-purple-400" />
+            <span className="font-semibold">LLM Rank Diagnostic</span>
+          </div>
+          <div className="flex space-x-6 text-sm text-gray-400">
+            <a href="#privacy" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#terms" className="hover:text-white transition-colors">Terms</a>
+            <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+          </div>
+        </div>
       </footer>
     </div>
   );
