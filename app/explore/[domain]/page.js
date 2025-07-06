@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Eye, ArrowLeft, ArrowRight, FileText, AlertTriangle, CheckCircle, TrendingUp, Sparkles, X, ExternalLink } from 'lucide-react';
+import { Eye, ArrowLeft, ArrowRight, FileText, AlertTriangle, CheckCircle, TrendingUp, Sparkles, X, ExternalLink, ChevronDown, ChevronRight, MapPin } from 'lucide-react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 export default function ExplorePage() {
@@ -15,6 +15,7 @@ export default function ExplorePage() {
   const [selectedHighlight, setSelectedHighlight] = useState(null);
   const [showOverlays, setShowOverlays] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
+  const [showAllIssues, setShowAllIssues] = useState(false);
   
   const params = useParams();
   const searchParams = useSearchParams();
@@ -79,7 +80,7 @@ export default function ExplorePage() {
   };
 
   const injectOverlays = () => {
-    if (!currentPage || !currentPage.highlights) return;
+    if (!currentPage || !currentPage.highlights || !showOverlays) return;
 
     const iframe = document.getElementById('website-iframe');
     if (!iframe || !iframe.contentDocument) return;
@@ -90,7 +91,7 @@ export default function ExplorePage() {
     // Remove existing overlays
     doc.querySelectorAll('.llm-overlay').forEach(el => el.remove());
 
-    // Add overlay styles
+    // Add enhanced overlay styles
     if (!doc.getElementById('overlay-styles')) {
       const style = doc.createElement('style');
       style.id = 'overlay-styles';
@@ -100,53 +101,125 @@ export default function ExplorePage() {
           display: inline;
           cursor: pointer;
           transition: all 0.2s ease;
+          border-radius: 2px;
+          padding: 1px 2px;
         }
         .llm-overlay.high {
-          background: rgba(239, 68, 68, 0.2);
-          border-bottom: 2px solid rgba(239, 68, 68, 0.6);
+          background: rgba(239, 68, 68, 0.25);
+          border: 2px solid rgba(239, 68, 68, 0.7);
+          box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
         }
         .llm-overlay.medium {
-          background: rgba(245, 158, 11, 0.2);
-          border-bottom: 2px solid rgba(245, 158, 11, 0.6);
+          background: rgba(245, 158, 11, 0.25);
+          border: 2px solid rgba(245, 158, 11, 0.7);
+          box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
         }
         .llm-overlay.low {
-          background: rgba(59, 130, 246, 0.2);
-          border-bottom: 2px solid rgba(59, 130, 246, 0.6);
+          background: rgba(59, 130, 246, 0.25);
+          border: 2px solid rgba(59, 130, 246, 0.7);
+          box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
         }
         .llm-overlay:hover {
+          background: rgba(139, 92, 246, 0.4) !important;
+          border-color: rgba(139, 92, 246, 0.9) !important;
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5) !important;
+          transform: scale(1.02);
+        }
+        .llm-overlay::after {
+          content: '🔍';
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: rgba(0, 0, 0, 0.8);
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 8px;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+        .llm-overlay:hover::after {
+          opacity: 1;
+        }
+        .llm-element-highlight {
+          position: relative;
+          border: 3px dashed;
+          border-radius: 4px;
+          padding: 4px;
+          margin: 2px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .llm-element-highlight.high {
+          border-color: rgba(239, 68, 68, 0.8);
+          background: rgba(239, 68, 68, 0.1);
+        }
+        .llm-element-highlight.medium {
+          border-color: rgba(245, 158, 11, 0.8);
+          background: rgba(245, 158, 11, 0.1);
+        }
+        .llm-element-highlight.low {
+          border-color: rgba(59, 130, 246, 0.8);
+          background: rgba(59, 130, 246, 0.1);
+        }
+        .llm-element-highlight:hover {
+          border-color: rgba(139, 92, 246, 0.9);
+          background: rgba(139, 92, 246, 0.2);
+          transform: scale(1.01);
+        }
+        .llm-element-highlight::before {
+          content: '⚠️';
+          position: absolute;
+          top: -10px;
+          left: -10px;
+          background: rgba(0, 0, 0, 0.9);
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          z-index: 10;
+        }
+        .llm-focus-highlight {
+          animation: pulse-focus 2s infinite;
+          box-shadow: 0 0 20px rgba(139, 92, 246, 0.8) !important;
+          border-color: rgba(139, 92, 246, 1) !important;
           background: rgba(139, 92, 246, 0.3) !important;
-          border-bottom-color: rgba(139, 92, 246, 0.8) !important;
         }
-        .llm-tooltip {
-          position: absolute;
-          background: #1f2937;
-          border: 1px solid #374151;
-          border-radius: 8px;
-          padding: 12px;
-          max-width: 300px;
-          z-index: 10000;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          color: white;
-          font-size: 14px;
-        }
-        .llm-tooltip::before {
-          content: '';
-          position: absolute;
-          top: -5px;
-          left: 10px;
-          width: 0;
-          height: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid #1f2937;
+        @keyframes pulse-focus {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
         }
       `;
       doc.head.appendChild(style);
     }
 
-    // Add overlays to text content
+    // Add overlays to elements and text content
     currentPage.highlights.forEach((highlight, index) => {
+      // Try to find elements by selector first
+      if (highlight.element_selector) {
+        const elements = doc.querySelectorAll(highlight.element_selector);
+        elements.forEach((element, elementIndex) => {
+          // Add highlight class to the element
+          element.classList.add('llm-element-highlight', highlight.severity);
+          element.dataset.highlightIndex = index;
+          element.dataset.elementIndex = elementIndex;
+          
+          // Add click handler
+          element.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setSelectedHighlight(highlight);
+          });
+        });
+      }
+
+      // Also add text-based overlays for better coverage
       const walker = doc.createTreeWalker(
         body,
         NodeFilter.SHOW_TEXT,
@@ -196,6 +269,42 @@ export default function ExplorePage() {
 
   const handleIframeLoad = () => {
     setTimeout(injectOverlays, 1000);
+  };
+
+  const highlightSpecificIssue = (highlight) => {
+    const iframe = document.getElementById('website-iframe');
+    if (!iframe || !iframe.contentDocument) return;
+
+    const doc = iframe.contentDocument;
+    
+    // Remove any existing focus highlights
+    doc.querySelectorAll('.llm-focus-highlight').forEach(el => {
+      el.classList.remove('llm-focus-highlight');
+    });
+
+    // Add focus highlight to the specific element
+    if (highlight.element_selector) {
+      const elements = doc.querySelectorAll(highlight.element_selector);
+      elements.forEach(element => {
+        element.classList.add('llm-focus-highlight');
+        // Scroll the element into view within the iframe
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  };
+
+  const handleShowAllIssues = () => {
+    setShowAllIssues(!showAllIssues);
+    setSelectedHighlight(null); // Close individual highlight panel
+  };
+
+  const handleIssueClick = (highlight) => {
+    setSelectedHighlight(highlight);
+    setShowAllIssues(false); // Close all issues panel
+    // Highlight the specific issue on the website
+    setTimeout(() => highlightSpecificIssue(highlight), 100);
+    // Scroll to the iframe to show the highlight
+    document.getElementById('website-iframe')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (loading) {
@@ -320,12 +429,15 @@ export default function ExplorePage() {
                   
                   {/* Highlight Summary */}
                   <div className="flex items-center space-x-6">
-                    <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleShowAllIssues}
+                      className="flex items-center space-x-2 hover:bg-white/5 p-2 rounded-lg transition-colors cursor-pointer"
+                    >
                       <Eye className="h-5 w-5 text-purple-400" />
-                      <span className="text-sm text-gray-300">
+                      <span className="text-sm text-gray-300 hover:text-purple-300 transition-colors">
                         {currentPage.highlights?.length || 0} issues found
                       </span>
-                    </div>
+                    </button>
                     
                     {/* Severity Breakdown */}
                     {currentPage.highlights && (
@@ -335,10 +447,20 @@ export default function ExplorePage() {
                           if (count === 0) return null;
                           
                           return (
-                            <div key={severity} className="flex items-center space-x-1">
+                            <button
+                              key={severity}
+                              onClick={() => {
+                                // Find the first highlight of this severity and select it
+                                const firstHighlight = currentPage.highlights.find(h => h.severity === severity);
+                                if (firstHighlight) {
+                                  handleIssueClick(firstHighlight);
+                                }
+                              }}
+                              className="flex items-center space-x-1 hover:bg-white/5 p-2 rounded-lg transition-colors cursor-pointer"
+                            >
                               {getSeverityIcon(severity)}
-                              <span className="text-xs text-gray-300">{count}</span>
-                            </div>
+                              <span className="text-xs text-gray-300 hover:text-purple-300 transition-colors">{count}</span>
+                            </button>
                           );
                         })}
                       </div>
@@ -383,41 +505,120 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* Selected Highlight Panel */}
-          {selectedHighlight && (
+          {/* Right Sidebar - All Issues or Single Issue */}
+          {(showAllIssues || selectedHighlight) && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="w-80 flex-shrink-0"
             >
-              <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6">
+              <div className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-6 h-[600px] overflow-hidden flex flex-col">
+                {/* Header */}
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Issue Details</h3>
+                  <h3 className="text-lg font-semibold">
+                    {showAllIssues ? `All Issues (${currentPage?.highlights?.length || 0})` : 'Issue Details'}
+                  </h3>
                   <button
-                    onClick={() => setSelectedHighlight(null)}
+                    onClick={() => {
+                      setShowAllIssues(false);
+                      setSelectedHighlight(null);
+                    }}
                     className="text-gray-400 hover:text-white transition-colors"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    {getSeverityIcon(selectedHighlight.severity)}
-                    <span className="font-medium capitalize">{selectedHighlight.severity} Issue</span>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium text-gray-300 mb-2">Problem:</h4>
-                    <p className="text-sm text-gray-400">{selectedHighlight.reason}</p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium text-purple-400 mb-2">Suggestion:</h4>
-                    <p className="text-sm text-gray-300">{selectedHighlight.suggestion}</p>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-white/10">
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto">
+                  {showAllIssues ? (
+                    /* All Issues List */
+                    <div className="space-y-3">
+                      {currentPage?.highlights?.map((highlight, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`p-4 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
+                            getSeverityColor(highlight.severity)
+                          }`}
+                          onClick={() => handleIssueClick(highlight)}
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              {getSeverityIcon(highlight.severity)}
+                              <span className="font-medium text-sm capitalize">
+                                {highlight.severity} Issue
+                              </span>
+                            </div>
+                            <MapPin className="h-4 w-4 text-gray-400" />
+                          </div>
+                          
+                          <div className="mb-2">
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300">
+                              {highlight.category}
+                            </span>
+                          </div>
+                          
+                          <div className="text-sm text-gray-300 mb-2 line-clamp-2">
+                            {highlight.reason}
+                          </div>
+                          
+                          <div className="text-xs text-gray-400 line-clamp-1">
+                            {highlight.suggestion}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Single Issue Details */
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        {getSeverityIcon(selectedHighlight.severity)}
+                        <span className="font-medium capitalize">{selectedHighlight.severity} Issue</span>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300">
+                          {selectedHighlight.category}
+                        </span>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-gray-300 mb-2">Problem:</h4>
+                        <p className="text-sm text-gray-400">{selectedHighlight.reason}</p>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-purple-400 mb-2">Suggestion:</h4>
+                        <p className="text-sm text-gray-300">{selectedHighlight.suggestion}</p>
+                      </div>
+                      
+                      {selectedHighlight.improvement && (
+                        <div>
+                          <h4 className="font-medium text-green-400 mb-2">How to Fix:</h4>
+                          <p className="text-sm text-gray-300">{selectedHighlight.improvement}</p>
+                        </div>
+                      )}
+                      
+                      {selectedHighlight.code_example && (
+                        <div>
+                          <h4 className="font-medium text-blue-400 mb-2">Code Example:</h4>
+                          <div className="bg-gray-800 rounded-lg p-3">
+                            <pre className="text-xs text-gray-300 overflow-x-auto">
+                              <code>{selectedHighlight.code_example}</code>
+                            </pre>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                {!showAllIssues && (
+                  <div className="pt-4 border-t border-white/10 mt-4">
                     <button
                       onClick={() => setSelectedHighlight(null)}
                       className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
@@ -425,7 +626,7 @@ export default function ExplorePage() {
                       Got it
                     </button>
                   </div>
-                </div>
+                )}
               </div>
             </motion.div>
           )}

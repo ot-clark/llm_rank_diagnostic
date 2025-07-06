@@ -8,7 +8,7 @@ export async function GET(request) {
       return Response.json({ error: 'Domain parameter is required' }, { status: 400 });
     }
 
-    // Return mock overlay data with more realistic content
+    // Enhanced overlay data with specific improvement areas based on analysis
     const mockOverlayData = [
       {
         pageId: 1,
@@ -16,28 +16,54 @@ export async function GET(request) {
         title: 'Homepage - ' + domain,
         highlights: [
           {
-            start: 0,
-            end: 50,
+            id: 'h1-hierarchy',
+            element_selector: 'h1',
             severity: 'medium',
-            suggestion: 'Add more specific details about your main value proposition',
-            reason: 'The headline is too generic and doesn\'t clearly communicate what makes your service unique',
-            element_selector: 'h1'
+            category: 'Semantic Structure',
+            suggestion: 'Ensure proper H1 → H2 → H3 hierarchy',
+            reason: 'Heading structure should follow a logical hierarchy for better AI understanding',
+            code_example: '<h1>Main Title</h1>\n<h2>Section</h2>\n<h3>Subsection</h3>',
+            improvement: 'Add H2 headings between H1 and H3 elements'
           },
           {
-            start: 100,
-            end: 200,
+            id: 'missing-semantic',
+            element_selector: 'div.content',
             severity: 'high',
-            suggestion: 'Include specific metrics, case studies, or customer testimonials',
-            reason: 'This section lacks concrete evidence and social proof that would increase credibility',
-            element_selector: 'p'
+            category: 'Semantic Structure',
+            suggestion: 'Add semantic HTML elements',
+            reason: 'Missing definition lists and semantic tags that help AI understand content structure',
+            code_example: '<dl>\n  <dt>Key Term</dt>\n  <dd>Definition</dd>\n</dl>',
+            improvement: 'Replace generic divs with semantic elements like dl, blockquote, code'
           },
           {
-            start: 300,
-            end: 400,
-            severity: 'low',
-            suggestion: 'Add internal links to related pages for better site navigation',
-            reason: 'Missing internal linking opportunities that could improve user engagement and SEO',
-            element_selector: 'div'
+            id: 'no-structured-data',
+            element_selector: 'head',
+            severity: 'high',
+            category: 'Schema Validation',
+            suggestion: 'Add JSON-LD structured data',
+            reason: 'Missing structured data that helps AI understand page content and context',
+            code_example: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "Company Name"\n}\n</script>',
+            improvement: 'Add JSON-LD script in the head section'
+          },
+          {
+            id: 'missing-canonical',
+            element_selector: 'head',
+            severity: 'medium',
+            category: 'Schema Validation',
+            suggestion: 'Add canonical URL',
+            reason: 'Missing canonical URL that helps AI identify the preferred version of content',
+            code_example: '<link rel="canonical" href="https://' + domain + '">',
+            improvement: 'Add canonical link in the head section'
+          },
+          {
+            id: 'vague-content',
+            element_selector: 'p',
+            severity: 'medium',
+            category: 'Embedding Clarity',
+            suggestion: 'Make content more specific and actionable',
+            reason: 'Content is too vague and doesn\'t provide concrete information for AI understanding',
+            code_example: 'Instead of "We provide great services", use "We increase conversion rates by 40% through AI optimization"',
+            improvement: 'Replace vague statements with specific metrics and examples'
           }
         ]
       },
@@ -47,20 +73,34 @@ export async function GET(request) {
         title: 'About Page - ' + domain,
         highlights: [
           {
-            start: 0,
-            end: 80,
+            id: 'no-structured-data-about',
+            element_selector: 'head',
             severity: 'high',
-            suggestion: 'Start with a compelling hook that addresses the reader\'s pain points',
-            reason: 'The opening paragraph doesn\'t immediately engage visitors or explain why they should care',
-            element_selector: 'body'
+            category: 'Schema Validation',
+            suggestion: 'Add Person/Organization structured data',
+            reason: 'About page is missing structured data that would help AI understand company information',
+            code_example: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "Company Name",\n  "description": "Company description"\n}\n</script>',
+            improvement: 'Add Organization schema to the head section'
           },
           {
-            start: 150,
-            end: 250,
+            id: 'missing-internal-links',
+            element_selector: 'div.content',
             severity: 'medium',
-            suggestion: 'Include specific achievements, awards, or recognition',
-            reason: 'Missing credibility markers that would help establish authority and trust',
-            element_selector: 'p'
+            category: 'Semantic Structure',
+            suggestion: 'Add internal links to related pages',
+            reason: 'Missing internal links that help AI understand relationships between pages',
+            code_example: '<a href="/services">Learn more about our services</a>',
+            improvement: 'Add descriptive internal links to related pages'
+          },
+          {
+            id: 'inconsistent-terms',
+            element_selector: 'p',
+            severity: 'medium',
+            category: 'Embedding Clarity',
+            suggestion: 'Use consistent terminology throughout',
+            reason: 'Inconsistent use of terms reduces AI understanding of content expertise',
+            code_example: 'Always use "AI content optimization" instead of mixing "AI optimization", "artificial intelligence optimization"',
+            improvement: 'Create a style guide and use consistent terms'
           }
         ]
       },
@@ -70,20 +110,34 @@ export async function GET(request) {
         title: 'Services Page - ' + domain,
         highlights: [
           {
-            start: 0,
-            end: 120,
+            id: 'missing-faq-schema',
+            element_selector: 'head',
             severity: 'medium',
-            suggestion: 'Add more context and examples for each service',
-            reason: 'This section could benefit from additional context and concrete examples',
-            element_selector: 'p'
+            category: 'Schema Validation',
+            suggestion: 'Add FAQPage structured data',
+            reason: 'Services page could benefit from FAQ schema for better AI understanding',
+            code_example: '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "FAQPage",\n  "mainEntity": [{\n    "@type": "Question",\n    "name": "What services do you offer?",\n    "acceptedAnswer": {\n      "@type": "Answer",\n      "text": "We offer..."\n    }\n  }]\n}\n</script>',
+            improvement: 'Add FAQPage schema for service-related questions'
           },
           {
-            start: 200,
-            end: 300,
+            id: 'missing-glossary',
+            element_selector: 'div.services',
             severity: 'low',
-            suggestion: 'Include pricing information or call-to-action buttons',
-            reason: 'Missing clear next steps for visitors who want to learn more or get started',
-            element_selector: 'div'
+            category: 'Semantic Structure',
+            suggestion: 'Add glossary of service terms',
+            reason: 'Missing definition lists that help AI understand domain-specific terminology',
+            code_example: '<dl>\n  <dt>AI Optimization</dt>\n  <dd>Process of making content more visible to AI models</dd>\n</dl>',
+            improvement: 'Add definition lists for key service terms'
+          },
+          {
+            id: 'generic-service-descriptions',
+            element_selector: 'p.service-description',
+            severity: 'medium',
+            category: 'Embedding Clarity',
+            suggestion: 'Add specific examples and case studies',
+            reason: 'Service descriptions are too generic and lack concrete examples',
+            code_example: 'Instead of "We provide optimization services", use "We increased client X\'s AI visibility by 300% through semantic HTML and structured data"',
+            improvement: 'Include specific metrics, case studies, and examples'
           }
         ]
       }
