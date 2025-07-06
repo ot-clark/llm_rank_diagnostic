@@ -457,15 +457,93 @@ export async function GET(request) {
       llmEchoProbability: Math.round(mockPages.reduce((sum, page) => sum + page.llmEchoProbability.score, 0) / mockPages.length)
     };
 
-    // Generate top improvements based on actual analysis
-    analysisData.topImprovements = [
-      'Add structured data (JSON-LD) for better AI understanding',
-      'Improve heading hierarchy consistency across pages',
-      'Include more semantic HTML elements like definition lists and blockquotes',
-      'Ensure GPTBot can access all pages without blocks or redirects',
-      'Add canonical URLs and update lastmod dates regularly',
-      'Optimize content for term consistency and reduce redundancy'
-    ];
+    // Generate specific, actionable improvements based on actual analysis
+    const generateSpecificImprovements = (pages, domain) => {
+      const improvements = [];
+      
+      // Check for missing structured data
+      const pagesWithoutStructuredData = pages.filter(p => !p.schemaValidation.hasStructuredData);
+      if (pagesWithoutStructuredData.length > 0) {
+        improvements.push({
+          priority: 'High',
+          category: 'Schema Validation',
+          title: 'Add JSON-LD structured data to key pages',
+          description: `${pagesWithoutStructuredData.length} pages are missing structured data`,
+          examples: pagesWithoutStructuredData.map(p => p.title),
+          action: `Add JSON-LD scripts to ${pagesWithoutStructuredData.map(p => p.title).join(', ')}. Example: <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Page Title"}</script>`
+        });
+      }
+      
+      // Check for missing semantic elements
+      const pagesMissingSemanticElements = pages.filter(p => p.semanticStructure.missingElements.length > 0);
+      if (pagesMissingSemanticElements.length > 0) {
+        const missingElements = [...new Set(pagesMissingSemanticElements.flatMap(p => p.semanticStructure.missingElements))];
+        improvements.push({
+          priority: 'Medium',
+          category: 'Semantic Structure',
+          title: 'Add missing semantic HTML elements',
+          description: `Pages are missing: ${missingElements.join(', ')}`,
+          examples: pagesMissingSemanticElements.map(p => p.title),
+          action: `Add definition lists using <dl><dt>Term</dt><dd>Definition</dd></dl> and internal links with descriptive anchor text like <a href="/related-page">Learn more about topic</a>`
+        });
+      }
+      
+      // Check for heading hierarchy issues
+      const pagesWithHierarchyIssues = pages.filter(p => p.semanticStructure.hierarchyIssues.length > 0);
+      if (pagesWithHierarchyIssues.length > 0) {
+        improvements.push({
+          priority: 'Medium',
+          category: 'Semantic Structure',
+          title: 'Fix heading hierarchy inconsistencies',
+          description: `${pagesWithHierarchyIssues.length} pages have heading structure issues`,
+          examples: pagesWithHierarchyIssues.map(p => p.title),
+          action: `Ensure proper H1 → H2 → H3 flow. Example: <h1>Main Title</h1><h2>Section</h2><h3>Subsection</h3>`
+        });
+      }
+      
+      // Check for missing canonical URLs
+      const pagesWithoutCanonical = pages.filter(p => !p.schemaValidation.canonicalUrl);
+      if (pagesWithoutCanonical.length > 0) {
+        improvements.push({
+          priority: 'Medium',
+          category: 'Schema Validation',
+          title: 'Add canonical URLs to pages',
+          description: `${pagesWithoutCanonical.length} pages are missing canonical URLs`,
+          examples: pagesWithoutCanonical.map(p => p.title),
+          action: `Add <link rel="canonical" href="${domain}${pagesWithoutCanonical[0].url.includes('/') ? pagesWithoutCanonical[0].url.split('/').pop() : ''}"> to each page`
+        });
+      }
+      
+      // Check for low term consistency
+      const pagesWithLowConsistency = pages.filter(p => p.embeddingClarity.termConsistency < 0.7);
+      if (pagesWithLowConsistency.length > 0) {
+        improvements.push({
+          priority: 'Medium',
+          category: 'Embedding Clarity',
+          title: 'Improve term consistency across content',
+          description: `${pagesWithLowConsistency.length} pages have inconsistent terminology`,
+          examples: pagesWithLowConsistency.map(p => p.title),
+          action: `Create a style guide and use consistent terms. Example: Always use "AI content optimization" instead of mixing "AI optimization", "artificial intelligence optimization", etc.`
+        });
+      }
+      
+      // Check for low LLM echo probability
+      const pagesWithLowEcho = pages.filter(p => p.llmEchoProbability.overlapPercentage < 40);
+      if (pagesWithLowEcho.length > 0) {
+        improvements.push({
+          priority: 'Low',
+          category: 'LLM Echo Probability',
+          title: 'Improve content relevance for AI queries',
+          description: `${pagesWithLowEcho.length} pages have low overlap with relevant queries`,
+          examples: pagesWithLowEcho.map(p => p.title),
+          action: `Research common industry questions and ensure content directly answers them. Example: "How to optimize content for AI visibility?" should be answered with specific techniques`
+        });
+      }
+      
+      return improvements.slice(0, 6); // Return top 6 improvements
+    };
+    
+    analysisData.topImprovements = generateSpecificImprovements(mockPages, normalizedDomain);
 
     analysisData.pages = mockPages;
 
